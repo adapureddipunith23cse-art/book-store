@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f7f4">
+  <title>Bookhaven — Store Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#"><span class="brand-mark">B</span><span>bookhaven<span class="brand-sub">STORE MANAGER</span></span></a>
+      <div class="side-label">WORKSPACE</div>
+      <button class="nav-item active"><span>▦</span> Overview</button>
+      <button class="nav-item" id="inventoryNav"><span>▤</span> Inventory</button>
+      <div class="sidebar-note"><div class="note-icon">✦</div><strong>A little order,<br> a lot of stories.</strong><p>Keep your shelves ready for the next reader.</p></div>
+      <div class="side-foot"><span class="status-dot"></span> Connected to local database</div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div><div class="eyebrow">YOUR STORE AT A GLANCE</div><h1>Good day, <em>Bookkeeper.</em></h1><p class="subhead">Here’s what’s happening in your bookstore today.</p></div>
+        <div class="top-actions"><span class="today" id="today"></span><button class="avatar" title="Store manager">BM</button></div>
+      </header>
+
+      <section class="stats-grid">
+        <article class="stat-card"><div class="stat-top"><span>Total titles</span><span class="stat-icon lavender">▤</span></div><div class="stat-value" id="totalTitles">—</div><div class="stat-foot">Books in your catalogue</div></article>
+        <article class="stat-card"><div class="stat-top"><span>Total copies</span><span class="stat-icon mint">▥</span></div><div class="stat-value" id="totalCopies">—</div><div class="stat-foot">Across all titles</div></article>
+        <article class="stat-card"><div class="stat-top"><span>Inventory value</span><span class="stat-icon peach">₹</span></div><div class="stat-value" id="inventoryValue">—</div><div class="stat-foot">Based on current stock</div></article>
+        <article class="stat-card"><div class="stat-top"><span>Low stock</span><span class="stat-icon yellow">!</span></div><div class="stat-value" id="lowStock">—</div><div class="stat-foot">3 copies or fewer</div></article>
+      </section>
+
+      <section class="content-card" id="inventory">
+        <div class="section-heading"><div><div class="eyebrow">THE COLLECTION</div><h2>Book inventory</h2><p class="muted">Manage your titles, keep stock updated, and help readers find their next favourite.</p></div><button class="primary-btn" id="addBookBtn"><span>＋</span> Add a book</button></div>
+        <div class="toolbar"><label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search by title, author or book ID..."></label><div class="toolbar-right"><span class="result-count" id="resultCount">Loading books...</span><select id="sortSelect" aria-label="Sort books"><option value="title">Sort: Title</option><option value="price">Sort: Price</option><option value="stock">Sort: Stock</option></select></div></div>
+        <div class="table-wrap"><table><thead><tr><th>BOOK DETAILS</th><th>BOOK ID</th><th>PRICE</th><th>STOCK STATUS</th><th class="align-right">ACTIONS</th></tr></thead><tbody id="bookRows"><tr><td colspan="5" class="empty-state">Loading your collection...</td></tr></tbody></table></div>
+        <div class="table-footer"><span id="footerCount">—</span><span>Changes save automatically to your database</span></div>
+      </section>
+      <footer>Made for readers, managed with care. <span>BOOKHAVEN · STORE MANAGEMENT</span></footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <dialog id="bookDialog" class="modal">
+    <form id="bookForm" method="dialog">
+      <div class="modal-head"><div><div class="eyebrow" id="formEyebrow">NEW ARRIVAL</div><h2 id="formTitle">Add a book</h2></div><button type="button" class="icon-btn" data-close="bookDialog">×</button></div>
+      <div class="form-grid">
+        <label class="field full">Book ID<input name="id" id="bookId" placeholder="e.g. B104" maxlength="30" required></label>
+        <label class="field full">Book title<input name="title" id="bookTitle" placeholder="Enter the book title" maxlength="150" required></label>
+        <label class="field full">Author<input name="author" id="bookAuthor" placeholder="Enter author name" maxlength="100" required></label>
+        <label class="field">Price (₹)<input name="price" id="bookPrice" type="number" min="0.01" step="0.01" placeholder="0.00" required></label>
+        <label class="field">Available copies<input name="quantity" id="bookQuantity" type="number" min="0" step="1" placeholder="0" required></label>
+      </div>
+      <p class="form-error" id="bookError"></p>
+      <div class="modal-actions"><button type="button" class="secondary-btn" data-close="bookDialog">Cancel</button><button class="primary-btn" type="submit" id="saveBookBtn">Save book</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="purchaseDialog" class="modal compact">
+    <form id="purchaseForm" method="dialog">
+      <div class="modal-head"><div><div class="eyebrow">CHECKOUT</div><h2>Complete purchase</h2></div><button type="button" class="icon-btn" data-close="purchaseDialog">×</button></div>
+      <div class="purchase-book"><div class="book-cover">BOOK</div><div><strong id="purchaseTitle"></strong><span id="purchaseMeta"></span></div></div>
+      <label class="field">Quantity<div class="stepper"><button type="button" id="qtyMinus">−</button><input id="purchaseQty" type="number" min="1" value="1"><button type="button" id="qtyPlus">＋</button></div></label>
+      <div class="total-line"><span>Total amount</span><strong id="purchaseTotal">₹0.00</strong></div>
+      <p class="form-error" id="purchaseError"></p>
+      <div class="modal-actions"><button type="button" class="secondary-btn" data-close="purchaseDialog">Cancel</button><button class="primary-btn" type="submit" id="confirmPurchase">Confirm purchase</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="confirmDialog" class="modal compact">
+    <form id="confirmForm" method="dialog"><div class="modal-head"><div><div class="eyebrow">PLEASE CONFIRM</div><h2>Delete this book?</h2></div><button type="button" class="icon-btn" data-close="confirmDialog">×</button></div><p class="muted" id="deleteMessage">This action cannot be undone.</p><div class="modal-actions"><button type="button" class="secondary-btn" data-close="confirmDialog">Keep book</button><button class="danger-btn" type="submit">Delete book</button></div></form>
+  </dialog>
+  <script src="/app.js"></script>
+</body>
+</html>
