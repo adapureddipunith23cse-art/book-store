@@ -1,0 +1,12 @@
+services:
+  bookstore:
+    build: .
+    container_name: bookstore-app
+    ports:
+      - "8081:8081"
+    volumes:
+      - bookstore-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  bookstore-data:
