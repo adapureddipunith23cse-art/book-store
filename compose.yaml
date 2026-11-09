@@ -10,3 +10,5 @@ services:
 
 volumes:
   bookstore-data:
+    external: true
+    name: book-store-full_bookstore-data
